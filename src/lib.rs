@@ -3,15 +3,18 @@ use std::io::{self, Write};
 
 use colored::Colorize;
 
+#[derive(Debug, PartialEq)]
 pub struct User {
     pub name: String,
     pub pass: String,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct UserList {
     pub users: HashMap<String, String>
 }
 
+#[derive(Debug, PartialEq)]
 pub struct Task {
     pub id: u32,
     pub description: String,
@@ -19,6 +22,7 @@ pub struct Task {
     pub status: bool,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct TodoList {
     pub tasks: Vec<Task>,
 }
@@ -28,8 +32,12 @@ impl User {
         User { name, pass }
     }
 
-    pub fn change_pass(user: User, pass: String) -> User {
-        User { pass, ..user }
+    pub fn change_pass(&mut self, pass: String) {
+        self.pass = pass;
+    }
+
+    pub fn clone(&self) -> User {
+        User { name: self.name.to_string(), pass: self.pass.to_string() }
     }
 }
 
@@ -150,4 +158,51 @@ pub fn welcome() {
 "); 
 }
 
+#[cfg(test)]
+mod user {
+    use super::*;
 
+    // Users
+    #[test]
+    fn new_user() {
+        let user: User = User::new("gonza".to_string(), "bena".to_string());
+        assert_eq!(user, User { name: "gonza".to_string(), pass: "bena".to_string() });
+    }
+
+    #[test]
+    fn change_pass() {
+        let mut user: User = User::new("gonza".to_string(), "bena".to_string());
+        user.change_pass("contrasena".to_string());
+        assert_eq!(user.pass, "contrasena");
+    }
+    
+    #[test]
+    fn clone() {
+        let user: User = User::new("gonza".to_string(), "bena".to_string());
+        assert_eq!(user, user.clone());
+    }
+}
+
+#[cfg(test)]
+mod task {
+    use crate::{User, Task};
+
+    #[test]
+    fn new_task() {
+        let user: User = User::new("gonza".to_string(), "bena".to_string());
+        let task: Task = Task::new(&mut 0, "Hola Mundo".to_string(), user.clone(), false);
+        assert_eq!(task, Task { id: 0, description: "Hola Mundo".to_string(), user, status: false });
+    }
+}
+
+#[cfg(test)]
+mod user_list {
+    use super::*;
+
+    #[test]
+    fn add_user() {
+        let user_list: UserList = UserList::new();
+        let hash_map: HashMap<String, String> = HashMap::new();
+        assert_eq!(user_list.users, hash_map);
+    }
+}

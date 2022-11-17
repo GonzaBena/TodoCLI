@@ -5,6 +5,11 @@ use std::process;
 use todo_cli::*;
 use colored::*;
 
+fn exception(mensaje: &str) -> bool {
+    eprintln!("\n{}", mensaje.red() );
+    process::exit(1);
+}
+
 fn main() {
     // Variables
     let mut id: u32 = 0;
@@ -13,7 +18,7 @@ fn main() {
     let mut opcion: String = String::new();
     let int_opcion: u8;
 
-    let mut logged: bool = false;
+    let logged: bool;
 
     // Logica
     welcome();
@@ -34,15 +39,11 @@ fn main() {
     logged = match &int_opcion {
         1 => users.login(),
         2 => users.register(),
-        _ => {
-            eprintln!("\n{}", "La opcion debe ser 1 o 2".red() );
-            process::exit(1);
-        },
+        _ => exception("La opcion debe ser 1 o 2"),
     };
 
-    match logged {
-        false => eprintln!("\n{}", "El usuario que ingreso no existe".red()),
-        true => (),
+    if !logged {
+        exception("El usuario que ingreso no existe");
     }
 
     todos.insert(
